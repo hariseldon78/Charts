@@ -256,7 +256,26 @@ open class PieChartRenderer: DataRenderer
         
         context.restoreGState()
     }
-    
+	func draw(context: CGContext, text: String, attributedText: NSAttributedString?, point: CGPoint, align: NSTextAlignment, attributes: [String : AnyObject]?)
+	{
+		if let avt=attributedText {
+			ChartUtils.drawText(
+				context: context,
+				attributedText: avt,
+				align: align,
+				point: point
+			)
+		} else {
+			ChartUtils.drawText(
+				context: context,
+				text: text,
+				point: point,
+				align: align,
+				attributes: attributes
+			)
+		}
+	}
+	
     open override func drawValues(context: CGContext)
     {
         guard
@@ -351,7 +370,17 @@ open class PieChartRenderer: DataRenderer
                     entry: e,
                     dataSetIndex: i,
                     viewPortHandler: viewPortHandler)
-                
+				
+				var attributedValueText:NSAttributedString?=nil
+				if let atForm=formatter as? IValueAttributedFormatter {
+					attributedValueText=atForm.attributedStringForValue(
+						value,
+						entry: e,
+						dataSetIndex: i,
+						viewPortHandler: viewPortHandler)
+				}
+				
+					
                 let sliceXBase = cos(transformedAngle * ChartUtils.Math.FDEG2RAD)
                 let sliceYBase = sin(transformedAngle * ChartUtils.Math.FDEG2RAD)
                 
@@ -420,17 +449,17 @@ open class PieChartRenderer: DataRenderer
                         
                         context.drawPath(using: CGPathDrawingMode.stroke)
                     }
-                    
+					
+					
                     if drawXOutside && drawYOutside
                     {
-                        ChartUtils.drawText(
-                            context: context,
-                            text: valueText,
-                            point: labelPoint,
-                            align: align,
-                            attributes: [NSFontAttributeName: valueFont, NSForegroundColorAttributeName: valueTextColor]
-                        )
-                        
+						draw(context: context,
+						     text: valueText,
+						     attributedText: attributedValueText,
+						     point: labelPoint,
+						     align: align,
+						     attributes: [NSFontAttributeName: valueFont, NSForegroundColorAttributeName: valueTextColor])
+						
                         if j < data.entryCount && pe?.label != nil
                         {
                             ChartUtils.drawText(
@@ -461,9 +490,10 @@ open class PieChartRenderer: DataRenderer
                     }
                     else if drawYOutside
                     {
-                        ChartUtils.drawText(
+                        draw(
                             context: context,
                             text: valueText,
+                            attributedText: attributedValueText,
                             point: CGPoint(x: labelPoint.x, y: labelPoint.y + lineHeight / 2.0),
                             align: align,
                             attributes: [NSFontAttributeName: valueFont, NSForegroundColorAttributeName: valueTextColor]
@@ -479,9 +509,10 @@ open class PieChartRenderer: DataRenderer
                  
                     if drawXInside && drawYInside
                     {
-                        ChartUtils.drawText(
+                       draw(
                             context: context,
                             text: valueText,
+                            attributedText: attributedValueText,
                             point: CGPoint(x: x, y: y),
                             align: .center,
                             attributes: [NSFontAttributeName: valueFont, NSForegroundColorAttributeName: valueTextColor]
@@ -517,9 +548,10 @@ open class PieChartRenderer: DataRenderer
                     }
                     else if drawYInside
                     {
-                        ChartUtils.drawText(
+                        draw(
                             context: context,
                             text: valueText,
+                            attributedText: attributedValueText,
                             point: CGPoint(x: x, y: y + lineHeight / 2.0),
                             align: .center,
                             attributes: [NSFontAttributeName: valueFont, NSForegroundColorAttributeName: valueTextColor]

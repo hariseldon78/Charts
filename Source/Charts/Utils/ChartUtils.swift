@@ -151,7 +151,27 @@ open class ChartUtils
         
         NSUIGraphicsPopContext()
     }
-    
+	
+	open class func drawText(context: CGContext, attributedText: NSAttributedString, align: NSTextAlignment, point: CGPoint)
+	{
+		var point = point
+		
+		if align == .center
+		{
+			point.x -= attributedText.size().width / 2.0
+		}
+		else if align == .right
+		{
+			point.x -= attributedText.size().width
+		}
+		
+		NSUIGraphicsPushContext(context)
+		
+		attributedText.draw(at: point)
+		
+		NSUIGraphicsPopContext()
+	}
+	
     internal class func drawMultilineText(context: CGContext, text: String, knownTextSize: CGSize, point: CGPoint, attributes: [String : AnyObject]?, constrainedToSize: CGSize, anchor: CGPoint, angleRadians: CGFloat)
     {
         var rect = CGRect(origin: CGPoint(), size: knownTextSize)
